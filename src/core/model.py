@@ -19,7 +19,7 @@ absl.logging.set_verbosity(absl.logging.ERROR)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import tensorflow as tf
-from tensorflow.keras import layers, models # type: ignore
+from tensorflow.keras import layers, models, optimizers # type: ignore
 from config.logging_config import logger
 
 # Disable GPU if not needed

@@ -1,0 +1,19 @@
+# Core ML & Image Processing
+tensorflow
+numpy
+matplotlib
+opencv-python
+scikit-image
+
+# API & Web Server
+flask
+flask-cors
+werkzeug
+
+# File Handling & Utilities
+h5py
+requests
+pillow  # For image handling
+
+# Testing & Debugging
+pytest

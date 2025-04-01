@@ -9,6 +9,7 @@ scikit-image
 flask
 flask-cors
 werkzeug
+streamlit
 
 # File Handling & Utilities
 h5py

@@ -33,5 +33,5 @@ class PredictorAPI(PredictorPort):
 
     def predict(self, model: tf.keras.Model, image: np.ndarray) -> np.ndarray:
         """Runs inference"""
-        
+
         return model.predict(image[np.newaxis, ...])[0]

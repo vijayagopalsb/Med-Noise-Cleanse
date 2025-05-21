@@ -12,7 +12,9 @@ EPOCHS = 20
 # Noise level for training
 NOISE_FACTOR = 0.2
 
-DATASET_PATH =  "/home/vijay/my_github_projects/Med-Noise-Cleanse/images"
+DATASET_PATH =  "/home/vijay/my_github_projects/Med-Noise-Cleanse/images/data"
 
 MODEL_SAVE_PATH = "models/denoising_autoencoder.keras"
+
+TEST_CLEAN_DIR = "/home/vijay/my_github_projects/Med-Noise-Cleanse/images/test/clean"
 

@@ -44,6 +44,7 @@ class Trainer:
 
     def load_images(self):
         """Loads images from dataset and applies noise."""
+        logger.info("Loading image from dataset...")
         images = []
         for filename in os.listdir(self.dataset_path):
             img_path =  os.path.join(self.dataset_path, filename)
@@ -51,10 +52,13 @@ class Trainer:
             img = img_to_array(img)
             images.append(img)
 
-        images = np.array(images)
-        noisy_images = images + NOISE_FACTOR * np.random.normal(loc=0.0, scale=1.0, size=images.shape)
+        # images = np.array(images)
+        img_array = np.array(images).astype("float32") / 255.0
+
+        # Add Gaussian noise
+        noisy_images = images + NOISE_FACTOR * np.random.normal(loc=0.0, scale=1.0, size=img_array.shape)
         noisy_images = np.clip(noisy_images, 0.0, 1.0)  # Keep values in [0,1]
-        return train_test_split(noisy_images, images, test_size=0.2, random_state=42)
+        return train_test_split(noisy_images, img_array, test_size=0.2, random_state=42)
 
     def train(self):
         """Trains the denoising autoencoder."""

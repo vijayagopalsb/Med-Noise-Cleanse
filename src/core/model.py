@@ -48,7 +48,8 @@ class DenoisingAutoencoder:
         self.model = self._create_model()
 
     def _create_model(self):
-        return self._build_deep_autoencoder()
+        # return self._build_deep_autoencoder()
+        return self._build_unet()
 
 
     def summary(self):
@@ -148,5 +149,68 @@ class DenoisingAutoencoder:
 
 
         # return models.Model(input_img, decoded)
+
+
+
+    def _build_unet(self):
+        # inputs = layers.Input(shape=input_shape)
+        inputs = layers.Input(shape=self.input_shape)
+        # Encoder
+        c1 = layers.Conv2D(32, (3,3), activation='relu', padding='same')(inputs)
+        c1 = layers.Conv2D(32, (3,3), activation='relu', padding='same')(c1)
+        p1 = layers.MaxPooling2D((2,2))(c1)
+
+        c2 = layers.Conv2D(64, (3,3), activation='relu', padding='same')(p1)
+        c2 = layers.Conv2D(64, (3,3), activation='relu', padding='same')(c2)
+        p2 = layers.MaxPooling2D((2,2))(c2)
+
+        c3 = layers.Conv2D(128, (3,3), activation='relu', padding='same')(p2)
+        c3 = layers.Conv2D(128, (3,3), activation='relu', padding='same')(c3)
+        p3 = layers.MaxPooling2D((2,2))(c3)
+
+        # Bottleneck
+        c4 = layers.Conv2D(256, (3,3), activation='relu', padding='same')(p3)
+        c4 = layers.Conv2D(256, (3,3), activation='relu', padding='same')(c4)
+
+        # Decoder
+        u5 = layers.UpSampling2D((2,2))(c4)
+        u5 = layers.concatenate([u5, c3])
+        c5 = layers.Conv2D(128, (3,3), activation='relu', padding='same')(u5)
+        c5 = layers.Conv2D(128, (3,3), activation='relu', padding='same')(c5)
+
+        u6 = layers.UpSampling2D((2,2))(c5)
+        u6 = layers.concatenate([u6, c2])
+        c6 = layers.Conv2D(64, (3,3), activation='relu', padding='same')(u6)
+        c6 = layers.Conv2D(64, (3,3), activation='relu', padding='same')(c6)
+
+        u7 = layers.UpSampling2D((2,2))(c6)
+        u7 = layers.concatenate([u7, c1])
+        c7 = layers.Conv2D(32, (3,3), activation='relu', padding='same')(u7)
+        c7 = layers.Conv2D(32, (3,3), activation='relu', padding='same')(c7)
+
+        outputs = layers.Conv2D(1, (1,1), activation='sigmoid')(c7)
+
+        model = models.Model(inputs, outputs)
+        model.compile(optimizer='adam', loss=combined_loss, metrics=['mae', psnr_metric, ssim_metric])
+
+
+        return model
+
+    # Usage:
+    # model = build_unet((128, 128, 1))
+    # model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+
+
+def ssim_loss(y_true, y_pred):
+        return 1 - tf.reduce_mean(tf.image.ssim(y_true, y_pred, max_val=1.0))
+
+def combined_loss(y_true, y_pred):
+        return 0.5 * tf.keras.losses.MeanSquaredError()(y_true, y_pred) + 0.5 * ssim_loss(y_true, y_pred)
+
+def psnr_metric(y_true, y_pred):
+    return tf.image.psnr(y_true, y_pred, max_val=1.0)
+
+def ssim_metric(y_true, y_pred):
+    return tf.image.ssim(y_true, y_pred, max_val=1.0)
 
 

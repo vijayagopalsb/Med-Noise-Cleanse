@@ -24,6 +24,8 @@ from tensorflow.keras.preprocessing.image import img_to_array, load_img # type: 
 from tensorflow.keras.callbacks import Callback # type: ignore
 from sklearn.model_selection import train_test_split # type: ignore
 import keras.saving # type: ignore
+import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.image import array_to_img # type: ignore
 
 # Import Custom App Libraries
 from config .settings import IMAGE_SIZE, BATCH_SIZE, EPOCHS, NOISE_FACTOR, MODEL_SAVE_PATH
@@ -42,6 +44,8 @@ class Trainer:
         self.dataset_path = dataset_path
         self.model = DenoisingAutoencoder(input_shape=(IMAGE_SIZE[0], IMAGE_SIZE[1], 1)).get_model()
 
+    
+
     def load_images(self):
         """Loads images from dataset and applies noise."""
         logger.info("Loading image from dataset...")
@@ -56,9 +60,37 @@ class Trainer:
         img_array = np.array(images).astype("float32") / 255.0
 
         # Add Gaussian noise
-        noisy_images = images + NOISE_FACTOR * np.random.normal(loc=0.0, scale=1.0, size=img_array.shape)
+        noisy_images = img_array + NOISE_FACTOR * np.random.normal(loc=0.0, scale=1.0, size=img_array.shape)
         noisy_images = np.clip(noisy_images, 0.0, 1.0)  # Keep values in [0,1]
-        return train_test_split(noisy_images, img_array, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(noisy_images, img_array, test_size=0.2, random_state=42)
+        # Save 10 samples from the test set for review
+        self.save_noisy_clean_samples(X_test, y_test, output_folder="noise_data", num_samples=10)
+        return  X_train, X_test, y_train, y_test
+
+    def save_noisy_clean_samples(self, noisy_images, clean_images, output_folder="noise_data", num_samples=10):
+        """
+        Saves noisy and clean image pairs side-by-side for manual inspection.
+
+        Args:
+            noisy_images (numpy.ndarray): Noisy input images.
+            clean_images (numpy.ndarray): Clean ground truth images.
+            output_folder (str): Directory where images will be saved.
+            num_samples (int): Number of samples to save.
+        """
+        os.makedirs(output_folder, exist_ok=True)
+        for i in range(min(num_samples, len(noisy_images))):
+            noisy = array_to_img(noisy_images[i])
+            clean = array_to_img(clean_images[i])
+            fig, axes = plt.subplots(1, 2, figsize=(4, 2))
+            axes[0].imshow(noisy, cmap='gray')
+            axes[0].set_title("Noisy")
+            axes[0].axis('off')
+            axes[1].imshow(clean, cmap='gray')
+            axes[1].set_title("Clean")
+            axes[1].axis('off')
+            save_path = os.path.join(output_folder, f"sample_{i+1}.png")
+            plt.savefig(save_path, bbox_inches='tight')
+            plt.close(fig)
 
     def train(self):
         """Trains the denoising autoencoder."""
@@ -81,7 +113,7 @@ class Trainer:
         keras.saving.save_model(self.model, MODEL_SAVE_PATH)
         logger.info(f"-->> Model saved to {MODEL_SAVE_PATH}")
 
-
+    
 
 
 class LoggingCallback(Callback):

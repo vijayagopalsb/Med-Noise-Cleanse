@@ -3,7 +3,7 @@
 # Configuration setting for project
 
 # Input image size
-IMAGE_SIZE = (128, 128)
+IMAGE_SIZE = (192, 192)
 
 BATCH_SIZE = 32
 

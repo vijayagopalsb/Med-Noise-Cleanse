@@ -26,12 +26,22 @@ from src.ports.predictor import PredictorPort
 class PredictorAPI(PredictorPort):
     """Handles model inference"""
 
-    def load_model(self, model_path: str) -> tf.keras.Model:
+    def load_model(self, model_path: str, custom_objects=None) -> tf.keras.Model:
         """Loads a trained model"""
 
-        return tf.keras.models.load_model(model_path)
+        return tf.keras.models.load_model(model_path, custom_objects=custom_objects)
 
-    def predict(self, model: tf.keras.Model, image: np.ndarray) -> np.ndarray:
+    # def predict(self, model: tf.keras.Model, image: np.ndarray) -> np.ndarray:
+    #     """Runs inference"""
+
+    #     return model.predict(image[np.newaxis, ...])[0]
+
+    def predict(self,model, image):
         """Runs inference"""
-
-        return model.predict(image[np.newaxis, ...])[0]
+        # image is expected to be (1, 128, 128, 1)
+        prediction = model.predict(image)
+        # prediction shape: (1, 128, 128, 1)
+        denoised_img = prediction[0]  # (128, 128, 1)
+        if denoised_img.shape[-1] == 1:
+            denoised_img = denoised_img[..., 0]  # Convert (128, 128, 1) -> (128, 128)
+        return denoised_img

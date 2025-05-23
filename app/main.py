@@ -54,7 +54,7 @@ def train_model():
     print(f"Loading data from: {data_loader.dataset_path}")  # Debugging
 
     X_train, _, X_val, _ = data_loader.load_data()
-    autoencoder = DenoisingAutoencoder(input_shape=(128, 128, 1))  # Assuming grayscale images
+    autoencoder = DenoisingAutoencoder(input_shape=(192, 192, 1))  # Assuming grayscale images
     model = autoencoder.get_model()
     trainer.train(model, X_train, X_val)
     trainer.save_model(model, MODEL_PATH)
@@ -90,7 +90,7 @@ def predict():
         return jsonify({"error": "No image uploaded"}), 400
 
     file = request.files["image"]
-    img = load_img(io.BytesIO(file.read()), target_size=(128, 128), color_mode="grayscale")
+    img = load_img(io.BytesIO(file.read()), target_size=(192, 192), color_mode="grayscale")
     img_array = img_to_array(img) / 255.0  # Normalize to [0,1]
     img_array = np.expand_dims(img_array, axis=0)  # (1, 128, 128, 1)
 

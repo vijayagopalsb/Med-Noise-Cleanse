@@ -14,6 +14,8 @@ NOISE_FACTOR = 0.2
 
 DATASET_PATH =  "/home/vijay/my_github_projects/Med-Noise-Cleanse/images/data"
 
+DATASET_PATH_CLEAN =  "/home/vijay/my_github_projects/Med-Noise-Cleanse/images/clean"
+
 MODEL_SAVE_PATH = "models/denoising_autoencoder.keras"
 
 TEST_CLEAN_DIR = "/home/vijay/my_github_projects/Med-Noise-Cleanse/images/test/clean"

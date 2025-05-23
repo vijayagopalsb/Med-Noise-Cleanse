@@ -10,7 +10,7 @@ BATCH_SIZE = 32
 EPOCHS = 20
 
 # Noise level for training
-NOISE_FACTOR = 0.2
+NOISE_FACTOR = 0.05
 
 DATASET_PATH =  "/home/vijay/my_github_projects/Med-Noise-Cleanse/images/data"
 

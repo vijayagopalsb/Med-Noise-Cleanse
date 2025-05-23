@@ -8,6 +8,7 @@
 import os
 import sys
 import absl.logging
+from PIL import Image
 
 # Suppress all types messages tensorflow
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -44,7 +45,7 @@ class Trainer:
         self.dataset_path = dataset_path
         self.model = DenoisingAutoencoder(input_shape=(IMAGE_SIZE[0], IMAGE_SIZE[1], 1)).get_model()
 
-    
+
 
     def load_images(self):
         """Loads images from dataset and applies noise."""
@@ -78,19 +79,42 @@ class Trainer:
             num_samples (int): Number of samples to save.
         """
         os.makedirs(output_folder, exist_ok=True)
+        # for i in range(min(num_samples, len(noisy_images))):
+        #     noisy = array_to_img(noisy_images[i])
+        #     clean = array_to_img(clean_images[i])
+        #     fig, axes = plt.subplots(1, 2, figsize=(4, 2))
+        #     axes[0].imshow(noisy, cmap='gray')
+        #     axes[0].set_title("Noisy")
+        #     axes[0].axis('off')
+        #     axes[1].imshow(clean, cmap='gray')
+        #     axes[1].set_title("Clean")
+        #     axes[1].axis('off')
+        #     save_path = os.path.join(output_folder, f"sample_{i+1}.png")
+        #     plt.savefig(save_path, bbox_inches='tight')
+        #     plt.close(fig)
+
+        # for i in range(min(num_samples, len(noisy_images))):
+        #     noisy = array_to_img(noisy_images[i])
+        #     fig, ax = plt.subplots(figsize=(2, 2))
+        #     ax.imshow(noisy, cmap='gray')
+        #     ax.set_title("Noisy")
+        #     ax.axis('off')
+        #     save_path = os.path.join(output_folder, f"noisy_sample_{i+1}.png")
+        #     plt.savefig(save_path, bbox_inches='tight')
+        #     plt.close(fig)
+
         for i in range(min(num_samples, len(noisy_images))):
+            # Compute noise: (assumes both are float32 arrays in [0,1])
+            # noise = noisy_images[i] - clean_images[i]  # shape: (h, w, c)
+            # Rescale noise to [0, 1] for visualization (min-max normalization)
+            # noise_vis = (noise - noise.min()) / (noise.max() - noise.min() + 1e-8)
+            # noise_img = array_to_img(noise_vis)
+
             noisy = array_to_img(noisy_images[i])
-            clean = array_to_img(clean_images[i])
-            fig, axes = plt.subplots(1, 2, figsize=(4, 2))
-            axes[0].imshow(noisy, cmap='gray')
-            axes[0].set_title("Noisy")
-            axes[0].axis('off')
-            axes[1].imshow(clean, cmap='gray')
-            axes[1].set_title("Clean")
-            axes[1].axis('off')
-            save_path = os.path.join(output_folder, f"sample_{i+1}.png")
-            plt.savefig(save_path, bbox_inches='tight')
-            plt.close(fig)
+            noisy_resized = noisy.resize((192, 192), Image.LANCZOS)
+            save_path = os.path.join(output_folder, f"noise_only_{i+1}.png")
+            noisy_resized.save(save_path)  # This will always save at 256x256
+            print(f"Saved: {save_path}")
 
     def train(self):
         """Trains the denoising autoencoder."""

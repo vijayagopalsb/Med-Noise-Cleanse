@@ -91,6 +91,7 @@ def predict():
 
     file = request.files["image"]
     img = load_img(io.BytesIO(file.read()), target_size=(192, 192), color_mode="grayscale")
+    #img = load_img(io.BytesIO(file.read()), target_size=(192, 192), color_mode="grayscale")
     img_array = img_to_array(img) / 255.0  # Normalize to [0,1]
     img_array = np.expand_dims(img_array, axis=0)  # (1, 128, 128, 1)
 

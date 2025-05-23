@@ -40,7 +40,7 @@ for fname in os.listdir(input_dir):
         try:
             with Image.open(img_path) as img:
                 # img = img.convert('L')  # Uncomment if you want grayscale
-                img_resized = img.resize((256, 256), Image.LANCZOS)
+                img_resized = img.resize((192, 192), Image.LANCZOS)
                 base = os.path.splitext(fname)[0]
                 out_path = os.path.join(output_dir, f"{base}.jpg")
                 img_resized.save(out_path, "JPEG", quality=100)  # Max quality
